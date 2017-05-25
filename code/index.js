@@ -51,18 +51,18 @@ const handle_create_user = (msg) => {
 const handle_delete_user = (msg) => {
   exec(`bash revoke_cert.sh ${msg.accountName}`, (err, stdout, stderr) => {
     if(err) {
-      ws.send({
+      ws.send(prepareResponse({
         action: 'err_delete_user',
         accountName: msg.accountName,
         payload: 'Error deleting user'
-      })
+      }))
     }
     else {
-      ws.send({
+      ws.send(prepareResponse({
         action: 'delete_user',
         accountName: msg.accountName,
         payload: `User ${msg.accountName} deleted!`
-      })
+      }))
     }
   })
 }
