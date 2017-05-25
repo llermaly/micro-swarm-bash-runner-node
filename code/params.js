@@ -1,5 +1,5 @@
 export default {
   WS_URI: 'localhost:1337',
-  id: '',
-  secret: ''
+  id: '1',
+  secret: '1'
 }

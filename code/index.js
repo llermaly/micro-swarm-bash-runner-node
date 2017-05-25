@@ -1,19 +1,35 @@
 import WebSocket from 'ws'
 import params from './params'
 
-const ws = new WebSocket('ws://${params.WS_URI}/?id=${params.id}&secret=${params.secret}')
+let ws
 
-ws.on('open', () => {
-  console.log('conected')
-})
+const init = () => {
+  ws = new WebSocket(`ws://${params.WS_URI}/?id=${params.id}&secret=${params.secret}`)
 
-ws.on('message', (m) => {
-  processMessage(m)
-})
+  ws.on('open', () => {
+    console.log('conected')
+  })
 
-ws.on('close', () => {
-  console.log('connection dropped')
-})
+  ws.on('message', (m) => {
+    processMessage(m)
+  })
+
+  ws.on('close', () => {
+    console.log('connection dropped')
+    ws.close()
+    ws = null
+    setTimeout(() => {
+      init()
+    }, 5000)
+  })
+
+  ws.on('error', () => {
+    console.log('connection dropped with error')
+  })
+}
+
+init()
+
 
 
 
