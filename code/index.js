@@ -1,6 +1,8 @@
 import WebSocket from 'ws'
 import params from './params'
 
+import { exec } from 'child_process'
+
 let ws
 
 const init = () => {
@@ -34,17 +36,35 @@ init()
 
 
 const handle_create_user = (msg) => {
-  /* DO SHIT */
-
-  ws.send(prepareResponse({
-    action: 'cert_created',
-    accountName: 'user1',
-    payload: ''  
-  }))
+  
+  exec(`bash create_cert.sh ${msg.accountName}`, (err, stdout, stderr) => {
+    if(stdout) {
+      ws.send(prepareResponse({
+        action: 'cert_created',
+        accountName: msg.accountName,
+        payload: stdout  
+      }))
+    }
+  })
 }
 
 const handle_delete_user = (msg) => {
-
+  exec(`bash revoke_cert.sh ${msg.accountName}`, (err, stdout, stderr) => {
+    if(err) {
+      ws.send({
+        action: 'err_delete_user',
+        accountName: msg.accountName,
+        payload: 'Error deleting user'
+      })
+    }
+    else {
+      ws.send({
+        action: 'delete_user',
+        accountName: msg.accountName,
+        payload: `User ${msg.accountName} deleted!`
+      })
+    }
+  })
 }
 
 const prepareResponse = (data) => {
