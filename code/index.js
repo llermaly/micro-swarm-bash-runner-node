@@ -33,10 +33,20 @@ const init = () => {
 init()
 
 
-
+//sed -n '/Common Name,Real Address,Bytes Received,Bytes Sent,Connected Since/,/ROUTING TABLE/p' /etc/openvpn/openvpn-status.log | wc -l
+//a esa linea le restamos 2 y da la cantidad de usuarios online 
+const handle_get_connected_users = (msg) => {
+  exec(`sed -n '/Common Name,Real Address,Bytes Received,Bytes Sent,Connected Since/,/ROUTING TABLE/p' /etc/openvpn/openvpn-status.log | wc -l`, (err, stdout, stderr) => {
+    if(stdout) {
+      ws.send(prepareResponse({
+        action: 'get_connected_users',
+        connected_users: stdout - 2
+      }))
+    }
+  })
+}
 
 const handle_create_user = (msg) => {
-  
   exec(`bash create_cert.sh ${msg.accountName}`, (err, stdout, stderr) => {
     if(stdout) {
       ws.send(prepareResponse({
@@ -81,6 +91,9 @@ const processMessage = (message) => {
       break
     case 'delete_user':
       handle_delete_user(parsedMessage)
+      break
+    case 'get_connected_users':
+      handle_get_connected_users(parsedMessage)
       break
     default:
       console.log(`Evento '${parsedMessage.action}' no se puede procesar!`)
