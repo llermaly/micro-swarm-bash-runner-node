@@ -52,7 +52,8 @@ const handle_create_user = (msg) => {
       ws.send(prepareResponse({
         action: 'cert_created',
         accountName: msg.accountName,
-        payload: stdout  
+        payload: stdout,
+        node_id: msg.node_id
       }))
     }
   })
