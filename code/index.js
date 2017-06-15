@@ -35,13 +35,27 @@ init()
 
 //sed -n '/Common Name,Real Address,Bytes Received,Bytes Sent,Connected Since/,/ROUTING TABLE/p' /etc/openvpn/openvpn-status.log | wc -l
 //a esa linea le restamos 2 y da la cantidad de usuarios online 
+// const handle_get_connected_users = (msg) => {
+//   exec(`sed -n '/Common Name,Real Address,Bytes Received,Bytes Sent,Connected Since/,/ROUTING TABLE/p' /etc/openvpn/openvpn-status.log | wc -l`, (err, stdout, stderr) => {
+//     if(stdout) {
+//       ws.send(prepareResponse({
+//         action: 'get_connected_users',
+//         connected_users: stdout - 2
+//       }))
+//     }
+//   })
+// }
+
 const handle_get_connected_users = (msg) => {
-  exec(`sed -n '/Common Name,Real Address,Bytes Received,Bytes Sent,Connected Since/,/ROUTING TABLE/p' /etc/openvpn/openvpn-status.log | wc -l`, (err, stdout, stderr) => {
-    if(stdout) {
+  console.log(msg)
+  exec('bash test_connected', (err, stdout, stderr) => {
+    if(stdout.length > 0) {
       ws.send(prepareResponse({
+        node_id: msg.node_id,
         action: 'get_connected_users',
-        connected_users: stdout - 2
+        connected_users: isNaN(stdout) ? 0 : parseInt(stdout) - 2
       }))
+      console.log(parseInt(stdout) - 2)
     }
   })
 }
